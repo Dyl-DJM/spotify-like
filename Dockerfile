@@ -13,7 +13,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0
 # Copy in the source code
 #COPY src ./src
 #COPY . .
-EXPOSE 3000
+EXPOSE 4200
 # Setup an app user so the container doesn't run as the root user
 #useless here
 #RUN useradd app
@@ -87,12 +87,18 @@ RUN yarn add @angular/cli@19.2.7
 #RUN npm i -g @angular/cli
 RUN npm update
 
-#go to the angular project part
+#go to the "./angular" project folder
 WORKDIR ./angular
 
 #start is equivalent
 #for ng serve --host 0.0.0.0 (look at package.json in scipts)
 #RUN npm start --host 
+#RUN npm start
 
 RUN npm start
+#CMD ["npm", "start"]
+
+#RUN ng "serve", "--host", "0.0.0.0", "--port", "4200"]
+
+
 

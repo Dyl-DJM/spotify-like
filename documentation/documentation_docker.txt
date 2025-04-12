@@ -285,6 +285,47 @@ le site est inaccessible dans l'url"
 
 solution :
 
-```ajouter
-RUN ng serve --host 0.0.0.0
+dans le fichier package.json de "spotify-like/angular" :
+
 ```
+
+"scripts": {
+    "ng": "ng",
+    "start": "ng serve --host 0.0.0.0", --> cette ligne
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+
+```
+
+problème : 
+
+
+angular ne se met plu à jour automatiueent avec docker :
+
+solution :
+
+https://stackoverflow.com/questions/69101814/angular-on-docker-hot-reload-not-works
+
+ajouter : 
+
+--poll 2000
+
+"scripts": {
+    "ng": "ng",
+    "start": "ng serve --host 0.0.0.0 --poll 2000", --> cette ligne
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+
+
+erreur :
+
+"ERROR: failed to solve: node:22.9.0: failed to resolve source metadata for docker.io/library/node:22.9.0: failed to authorize: failed to fetch anonymous token: Get "https://auth.docker.io/token?scope=repository%3Alibrary%2Fnode%3Apull&service=registry.docker.io":
+ dial tcp: lookup auth.docker.io on 127.0.0.53:53: read udp 127.0.0.1:34976->127.0.0.53:53: i/o timeout"
+
+solution :
+
+vérifiez votre connexion internet
