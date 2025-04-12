@@ -1,0 +1,7 @@
+lancer docker pour lancer angular avec ses installations :
+
+```bash
+sudo docker build -t spotifycontainer .        
+```
+
+depuis spotify-like
