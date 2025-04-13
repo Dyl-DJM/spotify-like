@@ -1,4 +1,7 @@
 #name of the image chosen
+
+
+#necessary contrary to one could think
 FROM mcr.microsoft.com/dotnet/aspnet
 #where the application will live
 #and where future run command will run from
@@ -13,7 +16,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0
 # Copy in the source code
 #COPY src ./src
 #COPY . .
-EXPOSE 4200
+#EXPOSE 4200
 # Setup an app user so the container doesn't run as the root user
 #useless here
 #RUN useradd app
@@ -26,6 +29,10 @@ EXPOSE 4200
 #equivalent to "cd", in order to go to the angular 
 # file content
 WORKDIR /angular
+
+COPY pacakge.json pacakge-lock.json ./
+
+EXPOSE 4200
 
 # source : https://www.docker.com/blog/docker-best-practices-choosing-between-run-cmd-and-entrypoint/
 # These commands are executed during the image build process, and each RUN instruction creates a new layer in the Docker image. 
@@ -88,15 +95,18 @@ RUN yarn add @angular/cli@19.2.7
 RUN npm update
 
 #go to the "./angular" project folder
-WORKDIR ./angular
+#WORKDIR ./angular
 
+#EXPOSE 4200
 #start is equivalent
 #for ng serve --host 0.0.0.0 (look at package.json in scipts)
 #RUN npm start --host 
 #RUN npm start
 
-RUN npm start
-#CMD ["npm", "start"]
+# run at build time
+#RUN npm start
+#necessary for hot reloading, run cannot do it cause only CMD works at "runtime"
+CMD ["npm", "start"]
 
 #RUN ng "serve", "--host", "0.0.0.0", "--port", "4200"]
 

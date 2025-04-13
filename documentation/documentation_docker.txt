@@ -1,3 +1,29 @@
+L'ORDRE RÉEL des opérations :
+
+Dockerfile → Image → Conteneur 
+
+
+C'est à dire : 
+
+1) dockerfile
+
+2) création de l'image : 
+
+```bash
+docker build -t spotifyimage .
+```
+
+3) lancement du conteneur à partir de l'image :
+
+```bash
+docker run spotifyimage
+```
+
+
+
+
+
+
 créer un container et une image à partir d'une image :
 
 
@@ -308,6 +334,13 @@ solution :
 
 https://stackoverflow.com/questions/69101814/angular-on-docker-hot-reload-not-works
 
+```bash
+
+
+docker run -v $(pwd):/app -p 4200:4200 mcr.microsoft.com/dotnet/aspnet
+
+```
+
 ajouter : 
 
 --poll 2000
@@ -329,3 +362,63 @@ erreur :
 solution :
 
 vérifiez votre connexion internet
+
+erreur :
+
+"ERROR: Version in "./docker-compose.yml" is unsupported. You might be seeing this error because you're using the wrong Compose file version. Either specify a supported version (e.g "2.2" or "3.3") and place your service definitions under the `services` key, or omit the `version` key and place your service definitions at the root of the file to use version 1.
+For more on the Compose file format versions, see https://docs.docker.com/compose/compose-file/"
+
+solution : 
+
+1) supprimer l'ancien docker : 
+
+```bash
+
+sudo apt-get remove docker-compose-plugin
+```
+
+
+2) mettre à jour la version de docker : 
+
+sudo curl -L "https://github.com/docker/compose/releases/download/2.35.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+
+sudo chmod +x /usr/local/bin/docker-compose
+
+docker compose version
+
+
+```bash
+docker image prune
+```
+
+--> supprime les images non utilisées 
+```bash
+docker image prune -a
+```
+
+--> affiche les images actuellement utilisées
+
+```bash
+docker container prune
+```
+
+--> supprime les conteneurs non utilisés
+
+```bash
+
+docker system prune -a --volumes
+
+```
+
+--> Supprime tous les conteneurs arrêtés
+
+Supprime toutes les images non utilisées
+
+Supprime tous les volumes orphelins
+
+Supprime les networks inutilisés
+
+remarque gpt : 💡 Cette commande est super pratique,
+ mais elle efface beaucoup, 
+donc vérifie bien ce que tu veux garder.
