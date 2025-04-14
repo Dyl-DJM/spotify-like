@@ -1,0 +1,15 @@
+build:
+  image: mcr.microsoft.com/dotnet/aspnet:latest
+  stage: build
+  script:
+    - npm install
+    - npm run build
+  build image: 
+    image: docker
+    services:
+      #dind = docker in docker
+      - docker:dind
+    script:
+      - docker login
+  only:
+    - master

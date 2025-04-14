@@ -397,7 +397,8 @@ docker image prune
 docker image prune -a
 ```
 
---> affiche les images actuellement utilisées
+
+--> supprime les images non utilisées aussi mais ???
 
 ```bash
 docker container prune
@@ -412,11 +413,11 @@ docker system prune -a --volumes
 ```
 
 --> Supprime tous les conteneurs arrêtés
-
+&
 Supprime toutes les images non utilisées
-
+&
 Supprime tous les volumes orphelins
-
+&
 Supprime les networks inutilisés
 
 remarque gpt : 💡 Cette commande est super pratique,
