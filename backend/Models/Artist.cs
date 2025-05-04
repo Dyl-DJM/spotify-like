@@ -7,6 +7,6 @@ namespace backend.Models
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public List<GenreEnum> Genres { get; set; } = new List<GenreEnum>();
+        public string Genre { get; set; } = string.Empty;
     }
 }
