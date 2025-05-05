@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
+using backend.Mappers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -20,7 +21,8 @@ namespace backend.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var artists = _dbContext.Artists.ToList();
+            var artists = _dbContext.Artists.ToList()
+                .Select(a => a.ToArtistDto());
             return Ok(artists);
         }
 
@@ -32,8 +34,7 @@ namespace backend.Controllers
             {
                 return NotFound();
             }
-            return Ok(artist);
+            return Ok(artist.ToArtistDto());
         }
-
     }
 }
