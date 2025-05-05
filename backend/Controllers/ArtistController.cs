@@ -46,5 +46,25 @@ namespace backend.Controllers
             _dbContext.SaveChanges();
             return CreatedAtAction(nameof(GetById), new { id = artistModel.Id }, artistModel.ToArtistDto());
         }
+
+        [HttpPut]
+        [Route("{id}")]
+        public IActionResult Update([FromRoute] int id, [FromBody] UpdateArtistRequestDto artistRequestDto)
+        {
+            var artistModel = _dbContext.Artists.FirstOrDefault(x => x.Id == id);
+
+            if (artistModel == null)
+            {
+                return NotFound();
+            }
+
+            artistModel.Name = artistRequestDto.Name;
+            artistModel.Description = artistRequestDto.Description;
+            artistModel.Genre = artistRequestDto.Genre;
+
+            _dbContext.SaveChanges();
+
+            return Ok(artistModel.ToArtistDto());
+        }
     }
 }
