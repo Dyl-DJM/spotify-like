@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Data;
+using backend.Dtos.Artist;
 using backend.Mappers;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,6 +36,15 @@ namespace backend.Controllers
                 return NotFound();
             }
             return Ok(artist.ToArtistDto());
+        }
+
+        [HttpPost]
+        public IActionResult Create([FromBody] CreateArtistRequestDto artistRequestDto)
+        {
+            var artistModel = artistRequestDto.ToArtist();
+            _dbContext.Artists.Add(artistModel);
+            _dbContext.SaveChanges();
+            return CreatedAtAction(nameof(GetById), new { id = artistModel.Id }, artistModel.ToArtistDto());
         }
     }
 }
