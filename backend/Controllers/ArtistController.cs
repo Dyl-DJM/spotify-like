@@ -66,5 +66,21 @@ namespace backend.Controllers
 
             return Ok(artistModel.ToArtistDto());
         }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public IActionResult Delete([FromRoute] int id)
+        {
+            var artistModel = _dbContext.Artists.FirstOrDefault(x => x.Id == id);
+
+            if (artistModel == null)
+            {
+                return NotFound();
+            }
+            _dbContext.Artists.Remove(artistModel);
+            _dbContext.SaveChanges();
+
+            return NoContent();
+        }
     }
 }
