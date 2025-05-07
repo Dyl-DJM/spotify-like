@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using backend.Data;
 using backend.Dtos.Artist;
 using backend.Mappers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
@@ -20,17 +17,18 @@ namespace backend.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var artists = _dbContext.Artists.ToList()
-                .Select(a => a.ToArtistDto());
+            var artists = await _dbContext.Artists.ToListAsync();
+            var artistDto = artists.Select(a => a.ToArtistDto());
+
             return Ok(artists);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById([FromRoute] int id)
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var artist = _dbContext.Artists.Find(id);
+            var artist = await _dbContext.Artists.FindAsync(id);
             if (artist == null)
             {
                 return NotFound();
@@ -39,19 +37,19 @@ namespace backend.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] CreateArtistRequestDto artistRequestDto)
+        public async Task<IActionResult> Create([FromBody] CreateArtistRequestDto artistRequestDto)
         {
             var artistModel = artistRequestDto.ToArtist();
-            _dbContext.Artists.Add(artistModel);
-            _dbContext.SaveChanges();
+            await _dbContext.Artists.AddAsync(artistModel);
+            await _dbContext.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { id = artistModel.Id }, artistModel.ToArtistDto());
         }
 
         [HttpPut]
         [Route("{id}")]
-        public IActionResult Update([FromRoute] int id, [FromBody] UpdateArtistRequestDto artistRequestDto)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateArtistRequestDto artistRequestDto)
         {
-            var artistModel = _dbContext.Artists.FirstOrDefault(x => x.Id == id);
+            var artistModel = await _dbContext.Artists.FirstOrDefaultAsync(x => x.Id == id);
 
             if (artistModel == null)
             {
@@ -62,23 +60,23 @@ namespace backend.Controllers
             artistModel.Description = artistRequestDto.Description;
             artistModel.Genre = artistRequestDto.Genre;
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return Ok(artistModel.ToArtistDto());
         }
 
         [HttpDelete]
         [Route("{id}")]
-        public IActionResult Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var artistModel = _dbContext.Artists.FirstOrDefault(x => x.Id == id);
+            var artistModel = await _dbContext.Artists.FirstOrDefaultAsync(x => x.Id == id);
 
             if (artistModel == null)
             {
                 return NotFound();
             }
             _dbContext.Artists.Remove(artistModel);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return NoContent();
         }
