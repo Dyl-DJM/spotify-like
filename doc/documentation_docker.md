@@ -1,0 +1,425 @@
+L'ORDRE RÉEL des opérations :
+
+Dockerfile → Image → Conteneur 
+
+
+C'est à dire : 
+
+1) dockerfile
+
+2) création de l'image : 
+
+```bash
+docker build -t spotifyimage .
+```
+
+3) lancement du conteneur à partir de l'image :
+
+```bash
+docker run spotifyimage
+```
+
+
+
+
+
+
+créer un container et une image à partir d'une image :
+
+
+```bash
+docker run -p 80:80 mcr.microsoft.com/dotnet/aspnet
+```
+
+créer containeur avec image avec un nom précis :
+
+```bash
+
+docker container create -i -t --name spotifycontainer mcr.microsoft.com/dotnet/aspnet
+
+```
+
+(le nom du container doit être en lowercase)
+
+Explication :
+
+on créé un container :
+
+avec le port : 80 -->port local
+
+80  --> port à l'intérieur du container
+
+avec l'image : 
+
+mcr.microsoft.com/dotnet/aspnet
+
+(image propre à c#)
+
+sources :
+
+https://www.youtube.com/watch?v=1073xKuYNaY
+
+et 
+
+chatgpt
+
+
+supprimer tous les containers docker existants :
+
+```bash
+docker rm -fv $(docker ps -aq)
+```
+
+
+pb :
+
+lister et tuer qui écoute le port 80.
+
+solution: 
+
+```bash
+
+sudo lsof -i:80
+```
+
+```bash
+
+sudo kill numberPortAssociatedToRoot
+
+```
+
+voir les container créés mais non démarrés et ceux qui sont morts :
+
+```bash
+
+docker ps -a
+
+```
+lancer un container créé mais non démarré :
+
+```bash
+
+docker start container_name
+
+```
+
+voir les containers actifs : 
+
+```bash
+
+docker ps
+
+```
+
+
+comment créer un fichier docker (indispensable pour que les containers ne se lancent pas dans le vide) : 
+
+https://docs.docker.com/get-started/docker-concepts/building-images/writing-a-dockerfile/
+
+
+erreur :
+
+"ERROR: failed to solve: failed to read dockerfile: open Dockerfile: no such file or directory"
+
+solution :
+
+vérifiez que votre fichier docker se nomme bien : "Dockerfile" la casse compte !!
+
+
+exemple de fichier docker fonctionnel pour lancer c# et angular :
+
+```Dockerfile
+
+#name of the image chosen
+FROM mcr.microsoft.com/dotnet/aspnet
+#where the application will live
+#and where future run command will run from
+WORKDIR .
+
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0
+
+# Install the application dependencies
+#copy host to working directory data
+
+# Copy in the source code
+#COPY src ./src
+#COPY . .
+EXPOSE 3000
+# Setup an app user so the container doesn't run as the root user
+#useless here
+#RUN useradd app
+#USER app
+
+#the command to run front-end (angular) app
+#CMD ["./angular/ng", "serve", "--open", "0.0.0.0", "--port", "8080"]
+
+
+#equivalent to "cd", in order to go to the angular 
+# file content
+WORKDIR /angular
+
+# source : https://www.docker.com/blog/docker-best-practices-choosing-between-run-cmd-and-entrypoint/
+# These commands are executed during the image build process, and each RUN instruction creates a new layer in the Docker image. 
+# For example, if you create an image that requires specific software or libraries installed, you would use RUN to execute the necessary installation commands.
+#in our case we will install angular last version
+
+
+# Install Node.js and Yarn
+#RUN 
+#yarn add @angular/cli
+
+#already exists in global environment thus cause error...
+#RUN npm install --global yarn
+
+
+
+#INSTALL YARN (BEGIN)
+
+#install yarn directly
+#IT'S Compulsory to enable docker to download node
+FROM node:22.9.0
+
+#Install some dependencies
+
+WORKDIR /usr/app
+
+#precise that the install has to work in the environment of the folder "./angular"
+COPY ./angular /usr/app
+
+#it must be installed exactly here
+RUN npm install
+
+# Install curl and apt-transport-https to handle https sources
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    apt-transport-https \
+    lsb-release \
+    gnupg
+# Install yarn using the official Yarn repo
+RUN curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+    apt-get update && \
+    apt-get install -y yarn
+
+#INSTALL YARN (END)
+#COPY ./ /angular
+
+#INSTALL ANGULAR tools (BEGIN)
+RUN yarn add @angular-devkit/architect 
+RUN yarn add @angular/cli@19.2.7 
+#RUN npm install -g npm@11.3.0
+
+#WORKDIR /angular
+
+#COPY package.json .
+
+#RUN npm install --dev
+#RUN npm i -g @angular/cli
+RUN npm update
+
+#go to the angular project part
+WORKDIR ./angular
+
+#start is equivalent
+#for ng serve --host 0.0.0.0 (look at package.json in scipts)
+#RUN npm start --host 
+
+RUN npm start
+
+
+
+```
+
+
+problème :
+
+lancer une image docker qui est visible avec : 
+
+```bash
+docker ps -a
+
+```
+
+solution :
+
+```bash 
+
+docker build -t vigilant_jang .
+
+```
+
+avec vigilant_jang == le nom de l\'image visible avec .
+
+```bash
+docker ps -a
+```
+
+problème :
+
+"idealTree" already exists"
+
+solution :
+
+```Dockerfile
+#install yarn directly
+#IT'S Compulsory to enable docker to download node
+FROM node:22.9.0
+
+#Install some dependencies
+
+WORKDIR /usr/app
+COPY ./ /usr/app
+
+#it must be installed exactly here
+RUN npm install
+```
+
+il faut placer le install exactement ici, c'est à dire, 
+pas loin après le "FROM node..."
+
+
+
+problème :
+
+"You seem to not be depending on "@angular/core". This is an error."
+
+
+solution :
+
+"npm install @angular/core"
+
+
+
+résoudre problème :
+
+```Dockerfile
+
+RUN npm update
+```
+
+--> npm warn deprecated
+solution :
+
+https://stackoverflow.com/questions/78527247/have-used-npm-create-vitelatest-but-after-finishing-the-compilations-am-getting
+
+problème :
+
+"angular se lance mais 
+le site est inaccessible dans l'url"
+
+solution :
+
+dans le fichier package.json de "spotify-like/angular" :
+
+```
+
+"scripts": {
+    "ng": "ng",
+    "start": "ng serve --host 0.0.0.0", --> cette ligne
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+
+```
+
+problème : 
+
+
+angular ne se met plu à jour automatiueent avec docker :
+
+solution :
+
+https://stackoverflow.com/questions/69101814/angular-on-docker-hot-reload-not-works
+
+```bash
+
+
+docker run -v $(pwd):/app -p 4200:4200 mcr.microsoft.com/dotnet/aspnet
+
+```
+
+ajouter : 
+
+--poll 2000
+
+"scripts": {
+    "ng": "ng",
+    "start": "ng serve --host 0.0.0.0 --poll 2000", --> cette ligne
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+
+
+erreur :
+
+"ERROR: failed to solve: node:22.9.0: failed to resolve source metadata for docker.io/library/node:22.9.0: failed to authorize: failed to fetch anonymous token: Get "https://auth.docker.io/token?scope=repository%3Alibrary%2Fnode%3Apull&service=registry.docker.io":
+ dial tcp: lookup auth.docker.io on 127.0.0.53:53: read udp 127.0.0.1:34976->127.0.0.53:53: i/o timeout"
+
+solution :
+
+vérifiez votre connexion internet
+
+erreur :
+
+"ERROR: Version in "./docker-compose.yml" is unsupported. You might be seeing this error because you're using the wrong Compose file version. Either specify a supported version (e.g "2.2" or "3.3") and place your service definitions under the `services` key, or omit the `version` key and place your service definitions at the root of the file to use version 1.
+For more on the Compose file format versions, see https://docs.docker.com/compose/compose-file/"
+
+solution : 
+
+1) supprimer l'ancien docker : 
+
+```bash
+
+sudo apt-get remove docker-compose-plugin
+```
+
+
+2) mettre à jour la version de docker : 
+
+sudo curl -L "https://github.com/docker/compose/releases/download/2.35.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+
+sudo chmod +x /usr/local/bin/docker-compose
+
+docker compose version
+
+
+```bash
+docker image prune
+```
+
+--> supprime les images non utilisées 
+```bash
+docker image prune -a
+```
+
+
+--> supprime les images non utilisées aussi mais ???
+
+```bash
+docker container prune
+```
+
+--> supprime les conteneurs non utilisés
+
+```bash
+
+docker system prune -a --volumes
+
+```
+
+--> Supprime tous les conteneurs arrêtés
+&
+Supprime toutes les images non utilisées
+&
+Supprime tous les volumes orphelins
+&
+Supprime les networks inutilisés
+
+remarque gpt : 💡 Cette commande est super pratique,
+ mais elle efface beaucoup, 
+donc vérifie bien ce que tu veux garder.
