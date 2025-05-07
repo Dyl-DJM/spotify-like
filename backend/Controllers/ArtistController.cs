@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.Dtos.Artist;
+using backend.Interfaces;
 using backend.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,16 +11,18 @@ namespace backend.Controllers
     [ApiController]
     public class ArtistController : ControllerBase
     {
+        private readonly IArtistRepository _artistRepo;
         private readonly ApplicationDBContext _dbContext;
-        public ArtistController(ApplicationDBContext context)
+        public ArtistController(ApplicationDBContext context, IArtistRepository repository)
         {
+            _artistRepo = repository;
             _dbContext = context;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var artists = await _dbContext.Artists.ToListAsync();
+            var artists = await _artistRepo.GetAllAsync();
             var artistDto = artists.Select(a => a.ToArtistDto());
 
             return Ok(artists);
