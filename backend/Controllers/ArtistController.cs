@@ -31,7 +31,7 @@ namespace backend.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var artist = await _dbContext.Artists.FindAsync(id);
+            var artist = await _artistRepo.GetByIdAsync(id);
             if (artist == null)
             {
                 return NotFound();
@@ -43,27 +43,20 @@ namespace backend.Controllers
         public async Task<IActionResult> Create([FromBody] CreateArtistRequestDto artistRequestDto)
         {
             var artistModel = artistRequestDto.ToArtist();
-            await _dbContext.Artists.AddAsync(artistModel);
-            await _dbContext.SaveChangesAsync();
+            await _artistRepo.CreateAsync(artistModel);
             return CreatedAtAction(nameof(GetById), new { id = artistModel.Id }, artistModel.ToArtistDto());
         }
 
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateArtistRequestDto artistRequestDto)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateArtistRequestDto updateDto)
         {
-            var artistModel = await _dbContext.Artists.FirstOrDefaultAsync(x => x.Id == id);
+            var artistModel = await _artistRepo.UpdateAsync(id, updateDto);
 
             if (artistModel == null)
             {
                 return NotFound();
             }
-
-            artistModel.Name = artistRequestDto.Name;
-            artistModel.Description = artistRequestDto.Description;
-            artistModel.Genre = artistRequestDto.Genre;
-
-            await _dbContext.SaveChangesAsync();
 
             return Ok(artistModel.ToArtistDto());
         }
@@ -72,14 +65,12 @@ namespace backend.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var artistModel = await _dbContext.Artists.FirstOrDefaultAsync(x => x.Id == id);
+            var artistModel = await _artistRepo.DeleteAsync(id);
 
             if (artistModel == null)
             {
                 return NotFound();
             }
-            _dbContext.Artists.Remove(artistModel);
-            await _dbContext.SaveChangesAsync();
 
             return NoContent();
         }
