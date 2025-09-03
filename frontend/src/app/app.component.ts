@@ -15,7 +15,9 @@ export class AppComponent implements OnInit {
   	title = 'spotify-like';
 
 	  ngOnInit(): void {
-		  this.httpService.get(environment.artist.byName.replace("XXXX", "Drake")).subscribe((value)=>{
+		//   this.httpService.get(environment.artist.byName.replace("XXXX", "Drake")).subscribe((value)=>{
+		// 	console.log(value);
+		this.httpService.get(environment.artists).subscribe((value)=>{
 			console.log(value);
 		});
 	}
