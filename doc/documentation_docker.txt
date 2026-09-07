@@ -28,14 +28,14 @@ créer un container et une image à partir d'une image :
 
 
 ```bash
-docker run -p 80:80 mcr.microsoft.com/dotnet/aspnet
+docker run -p 8080:80 mcr.microsoft.com/dotnet/aspnet
 ```
 
 créer containeur avec image avec un nom précis :
 
 ```bash
 
-docker container create -i -t --name spotifycontainer mcr.microsoft.com/dotnet/aspnet
+docker container create git config --global --add safe.directory /media/user/DATA/Linux/bureau/perso/projets_informatique/spotify-like2 -i -t --name spotifycontainer mcr.microsoft.com/dotnet/aspnet
 
 ```
 
